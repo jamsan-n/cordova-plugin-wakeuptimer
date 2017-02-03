@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
 
 public class WakeupReceiver extends BroadcastReceiver {
@@ -26,7 +27,17 @@ public class WakeupReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Log.d(LOG_TAG, "wakeuptimer expired at " + sdf.format(new Date().getTime()));
-	
+
+    PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+    boolean isScreenAwake = (Build.VERSION.SDK_INT < 20 ? powerManager.isScreenOn() : powerManager.isInteractive());
+
+    if (isScreenAwake) {
+      Log.d(LOG_TAG, "screen is awake. Postponing launch.");
+      return;
+    }
+
+    Log.d(LOG_TAG, "is screen awake? " + isScreenAwake);
+
 		try {
 			String packageName = context.getPackageName();
 			Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
