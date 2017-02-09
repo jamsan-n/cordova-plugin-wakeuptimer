@@ -43,28 +43,28 @@ public class WakeupReceiver extends BroadcastReceiver {
 		Log.d(LOG_TAG, "wakeuptimer expired at " + sdf.format(new Date().getTime()));
 
 		try {
-            Bundle extrasBundle = intent.getExtras();
+			Bundle extrasBundle = intent.getExtras();
 
-            if (extrasBundle != null && extrasBundle.get("skipOnRunning") != null) {
-                if (extrasBundle.get("skipOnAwake").equals(true)) {
-                    PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-                    boolean isScreenAwake = (Build.VERSION.SDK_INT < 20 ? powerManager.isScreenOn() : powerManager.isInteractive());
+			if (extrasBundle != null && extrasBundle.get("skipOnRunning") != null) {
+				if (extrasBundle.get("skipOnAwake").equals(true)) {
+					PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+					boolean isScreenAwake = (Build.VERSION.SDK_INT < 20 ? powerManager.isScreenOn() : powerManager.isInteractive());
 
-                    if (isScreenAwake) {
-                        Log.d(LOG_TAG, "screen is awake. Postponing launch.");
-                        return;
-                    }
-                }
-            }
+					if (isScreenAwake) {
+						Log.d(LOG_TAG, "screen is awake. Postponing launch.");
+						return;
+					}
+				}
+			}
 
-            if (extrasBundle != null && extrasBundle.get("skipOnRunning") != null) {
-                if (extrasBundle.get("skipOnRunning").equals(true)) {
-                    if (isRunning(context)) {
-                        Log.d(LOG_TAG, "app is already running. No need to launch");
-                        return;
-                    }
-                }
-            }
+			if (extrasBundle != null && extrasBundle.get("skipOnRunning") != null) {
+				if (extrasBundle.get("skipOnRunning").equals(true)) {
+					if (isRunning(context)) {
+						Log.d(LOG_TAG, "app is already running. No need to launch");
+						return;
+					}
+				}
+			}
 
 			String packageName = context.getPackageName();
 			Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
