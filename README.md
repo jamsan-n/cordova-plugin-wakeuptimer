@@ -53,6 +53,21 @@ This plugin is meant to work with Cordova 3.5.0+.
        }
     );
 
+    // set wakeup timer, but skip launch if app is already running
+    window.wakeuptimer.wakeup( successCallback,
+       errorCallback,
+       // a list of alarms to set
+       {
+            alarms : [{
+                type : 'onetime',
+                skipOnRunning: true,
+                time : { hour : 11, minute : 20 },
+                extra : { message : 'json containing app-specific information to be posted when alarm triggers' },
+                message : 'Alarm has expired!'
+           }]
+       }
+    );
+
     // snooze...
     window.wakeuptimer.snooze( successCallback,
         errorCallback,
