@@ -38,6 +38,20 @@ This plugin is meant to work with Cordova 3.5.0+.
        }
     );
 
+    // set repeating wakeup timer
+    window.wakeuptimer.wakeup( successCallback,
+       errorCallback,
+       // a list of alarms to set
+       {
+            alarms : [{
+                type : 'repeating',
+                time : { minutes : 10 },
+                extra : { message : 'json containing app-specific information to be posted when alarm triggers' },
+                message : 'Alarm has expired!'
+           }]
+       }
+    );
+
     // set timer, but skip launch if user is using the phone (screen is on)
     window.wakeuptimer.wakeup( successCallback,
        errorCallback,
