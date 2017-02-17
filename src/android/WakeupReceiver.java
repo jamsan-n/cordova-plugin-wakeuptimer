@@ -45,7 +45,7 @@ public class WakeupReceiver extends BroadcastReceiver {
 		try {
 			Bundle extrasBundle = intent.getExtras();
 
-			if (extrasBundle != null && extrasBundle.get("skipOnRunning") != null) {
+			if (extrasBundle != null && extrasBundle.get("skipOnAwake") != null) {
 				if (extrasBundle.get("skipOnAwake").equals(true)) {
 					PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 					boolean isScreenAwake = (Build.VERSION.SDK_INT < 20 ? powerManager.isScreenOn() : powerManager.isInteractive());
