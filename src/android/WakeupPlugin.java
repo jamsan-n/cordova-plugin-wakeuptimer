@@ -158,6 +158,7 @@ public class WakeupPlugin extends CordovaPlugin {
 					intent.putExtra("skipOnAwake", alarm.getBoolean("skipOnAwake"));
 					intent.putExtra("skipOnRunning", alarm.getBoolean("skipOnRunning"));
 					intent.putExtra("type", type);
+					intent.putExtra("startInBackground", alarm.getBoolean("startInBackground"));
 				}
 				
 				setNotification(context, type, alarmDate, intent, ID_ONETIME_OFFSET);
@@ -175,6 +176,7 @@ public class WakeupPlugin extends CordovaPlugin {
 						intent.putExtra("day", days.getString(j));
 						intent.putExtra("skipOnAwake", alarm.getBoolean("skipOnAwake"));
 						intent.putExtra("skipOnRunning", alarm.getBoolean("skipOnRunning"));
+						intent.putExtra("startInBackground", alarm.getBoolean("startInBackground"));
 					}
 					
 					setNotification(context, type, alarmDate, intent, ID_DAYLIST_OFFSET + daysOfWeek.get(days.getString(j)));
@@ -188,6 +190,7 @@ public class WakeupPlugin extends CordovaPlugin {
 					intent.putExtra("type", type);
 					intent.putExtra("skipOnAwake", alarm.getBoolean("skipOnAwake"));
 					intent.putExtra("skipOnRunning", alarm.getBoolean("skipOnRunning"));
+					intent.putExtra("startInBackground", alarm.getBoolean("startInBackground"));
 				}
 				setNotification(context, type, alarmDate, intent, ID_SNOOZE_OFFSET);
 			} else if ( type.equals("repeating")) {
@@ -198,6 +201,7 @@ public class WakeupPlugin extends CordovaPlugin {
 					intent.putExtra("type", type);
 					intent.putExtra("skipOnAwake", alarm.getBoolean("skipOnAwake"));
 					intent.putExtra("skipOnRunning", alarm.getBoolean("skipOnRunning"));
+					intent.putExtra("startInBackground", alarm.getBoolean("startInBackground"));
 				}
 
 				setNotification(context, type, alarmDate, intent, ID_REPEAT_OFFSET);

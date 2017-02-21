@@ -29,8 +29,11 @@ public class WakeupReceiver extends BroadcastReceiver {
 		List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
 
 		for (ActivityManager.RunningTaskInfo task : tasks) {
-			if (ctx.getPackageName().equalsIgnoreCase(task.baseActivity.getPackageName()))
-				return true;
+			if (ctx.getPackageName().equalsIgnoreCase(task.baseActivity.getPackageName())) {
+				if (task.numRunning > 0) {
+					return true;
+				}
+			}
 		}
 
 		return false;
@@ -68,6 +71,8 @@ public class WakeupReceiver extends BroadcastReceiver {
 
 			String packageName = context.getPackageName();
 			Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+			launchIntent.putExtra("cdvStartInBackground", true);
+
 			String className = launchIntent.getComponent().getClassName();
 			Log.d(LOG_TAG, "launching activity for class " + className);
 
@@ -76,6 +81,14 @@ public class WakeupReceiver extends BroadcastReceiver {
 
 			Intent i = new Intent(context, c);
 			i.putExtra("wakeup", true);
+
+			if (extrasBundle != null && extrasBundle.get("startInBackground") != null) {
+				if (extrasBundle.get("startInBackground").equals(true)) {
+					Log.d(LOG_TAG, "starting app in background");
+					i.putExtra("cdvStartInBackground", true);
+				}
+			}
+
 			String extras=null;
 			if (extrasBundle!=null && extrasBundle.get("extra")!=null) {
 				extras = extrasBundle.get("extra").toString();
@@ -93,6 +106,7 @@ public class WakeupReceiver extends BroadcastReceiver {
 				if (extras!=null) {
 					o.put("extra", extras);
 				}
+				o.put("cdvStartInBackground", true);
 				PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, o);
 				pluginResult.setKeepCallback(true);
 				WakeupPlugin.connectionCallbackContext.sendPluginResult(pluginResult);
@@ -108,6 +122,7 @@ public class WakeupReceiver extends BroadcastReceiver {
 					reschedule.putExtra("extra", intent.getExtras().get("extra").toString());
 				}
 				reschedule.putExtra("day", WakeupPlugin.daysOfWeek.get(intent.getExtras().get("day")));
+				reschedule.putExtra("cdvStartInBackground", true);
 
 				PendingIntent sender = PendingIntent.getBroadcast(context, 19999 + WakeupPlugin.daysOfWeek.get(intent.getExtras().get("day")), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 				AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
