@@ -29,17 +29,17 @@
         </config-file>
         
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <receiver android:name="org.nypr.cordova.wakeupplugin.WakeupReceiver" />
-            <receiver android:name="org.nypr.cordova.wakeupplugin.WakeupBootReceiver">  
+            <receiver android:name="org.jk.cordova.wakeupplugin.WakeupReceiver" />
+            <receiver android:name="org.jk.cordova.wakeupplugin.WakeupBootReceiver">  
               <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
               </intent-filter>
             </receiver>
         </config-file>
         
-        <source-file src="src/android/WakeupPlugin.java" target-dir="src/org/nypr/cordova/wakeupplugin/" />
-        <source-file src="src/android/WakeupReceiver.java" target-dir="src/org/nypr/cordova/wakeupplugin/" />
-        <source-file src="src/android/WakeupBootReceiver.java" target-dir="src/org/nypr/cordova/wakeupplugin/" />
+        <source-file src="src/android/WakeupPlugin.java" target-dir="src/org/jk/cordova/wakeupplugin/" />
+        <source-file src="src/android/WakeupReceiver.java" target-dir="src/org/jk/cordova/wakeupplugin/" />
+        <source-file src="src/android/WakeupBootReceiver.java" target-dir="src/org/jk/cordova/wakeupplugin/" />
     </platform>
 
     <!-- ios -->
