@@ -18,7 +18,7 @@ This plugin is meant to work with Cordova 3.5.0+.
 
 2. Install this plugin using PhoneGap/Cordova cli:
 
-        cordova plugin add https://github.com/wnyc/cordova-plugin-wakeuptimer.git
+        cordova plugin add https://github.com/jamsan-n/cordova-plugin-wakeuptimer.git
 
 ## Usage
 
@@ -34,6 +34,9 @@ This plugin is meant to work with Cordova 3.5.0+.
                 time : { hour : 14, minute : 30 },
                 extra : { message : 'json containing app-specific information to be posted when alarm triggers' },
                 message : 'Alarm has expired!'
+				skipOnAwake: false,
+				skipOnRunning: false,
+				startInBackground: true,
            }]
        }
     );
@@ -48,6 +51,9 @@ This plugin is meant to work with Cordova 3.5.0+.
                 time : { minutes : 10 },
                 extra : { message : 'json containing app-specific information to be posted when alarm triggers' },
                 message : 'Alarm has expired!'
+				skipOnAwake: false,
+				skipOnRunning: false,
+				startInBackground: true,
            }]
        }
     );
@@ -63,6 +69,9 @@ This plugin is meant to work with Cordova 3.5.0+.
                 time : { hour : 12, minute : 10 },
                 extra : { message : 'json containing app-specific information to be posted when alarm triggers' },
                 message : 'Alarm has expired!'
+				skipOnAwake: false,
+				skipOnRunning: false,
+				startInBackground: true,
            }]
        }
     );
@@ -74,10 +83,12 @@ This plugin is meant to work with Cordova 3.5.0+.
        {
             alarms : [{
                 type : 'onetime',
-                skipOnRunning: true,
                 time : { hour : 11, minute : 20 },
                 extra : { message : 'json containing app-specific information to be posted when alarm triggers' },
                 message : 'Alarm has expired!'
+				skipOnAwake: false,
+				startInBackground: true,
+                skipOnRunning: true,
            }]
        }
     );
@@ -93,9 +104,30 @@ This plugin is meant to work with Cordova 3.5.0+.
                 message : this.get('message'),
                 sound : this.get('sound'),
                 action : this.get('action')
+				skipOnAwake: false,
+				skipOnRunning: false,
+				startInBackground: true,
             }]
         }
      );
+
+    // set repeating by seconds
+    window.wakeuptimer.wakeup( successCallback,
+       errorCallback,
+       // a list of alarms to set
+       {
+            alarms : [{
+                type : 'repeatingSeconds',
+                time : {seconds: 20},
+                extra : { message : 'json containing app-specific information to be posted when alarm triggers' },
+                message : 'Alarm has expired!'
+				skipOnAwake: false,
+				skipOnRunning: false,
+				startInBackground: true,
+           }]
+       }
+    );
+
 
     // example of a callback method
     var successCallback = function(result) {
