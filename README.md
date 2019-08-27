@@ -139,3 +139,9 @@ This plugin is meant to work with Cordova 3.5.0+.
             console.log('wakeup unhandled type (' + result.type + ')');
         }
     };
+
+	// ex repeatingSeconds callback:
+	```
+	wakeup repeating res: {type: "set", alarm_type: "repeatingSeconds", alarm_date: 1566908703500}
+	wakeup repeating res: {type: "wakeup", extra: "{ message : 'json containing app-specific information to be posted when alarm triggers' }", cdvStartInBackground: true}
+	```
