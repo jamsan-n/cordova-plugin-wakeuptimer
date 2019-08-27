@@ -3,6 +3,11 @@ package org.jk.cordova.wakeupplugin;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Calendar;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import org.apache.cordova.PluginResult;
 import org.json.JSONException;
@@ -89,6 +94,8 @@ public class WakeupReceiver extends BroadcastReceiver {
 				}
 			}
 
+
+			JSONObject alarm = WakeupPlugin.lastAlarm;
 			String extras=null;
 			if (extrasBundle!=null && extrasBundle.get("extra")!=null) {
 				extras = extrasBundle.get("extra").toString();
@@ -97,8 +104,27 @@ public class WakeupReceiver extends BroadcastReceiver {
 			if (extras!=null) {
 				i.putExtra("extra", extras);
 			}
-			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			context.startActivity(i);
+			if (alarm.has("extra")){
+				JSONObject extra = alarm.getJSONObject("extra");
+				if (extra.has("moveForeground") && extra.getBoolean("moveForeground")){
+					i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					context.startActivity(i);
+				}
+			}
+
+			if (extrasBundle.get("type").equals("repeatingSeconds")){
+			    // 再次设置alarm
+				Calendar alarmDate= WakeupPlugin.getTimeFromNow(WakeupPlugin.lastRepeatingSeconds);
+				Intent nintent = new Intent(context, WakeupReceiver.class);
+				if(alarm.has("extra")){
+					nintent.putExtra("extra", alarm.getJSONObject("extra").toString());
+					nintent.putExtra("type", extrasBundle.getString("type"));
+					nintent.putExtra("skipOnAwake", alarm.getBoolean("skipOnAwake"));
+					nintent.putExtra("skipOnRunning", alarm.getBoolean("skipOnRunning"));
+					nintent.putExtra("startInBackground", alarm.getBoolean("startInBackground"));
+				}
+				WakeupPlugin.setNotification(context, extrasBundle.getString("type"), alarmDate, nintent, WakeupPlugin.ID_REPEATSECOND_OFFSET);
+			}
 
 			if(WakeupPlugin.connectionCallbackContext!=null) {
 				JSONObject o=new JSONObject();
@@ -126,7 +152,9 @@ public class WakeupReceiver extends BroadcastReceiver {
 
 				PendingIntent sender = PendingIntent.getBroadcast(context, 19999 + WakeupPlugin.daysOfWeek.get(intent.getExtras().get("day")), intent, PendingIntent.FLAG_UPDATE_CURRENT);
 				AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-				if (Build.VERSION.SDK_INT>=19) {
+				if (Build.VERSION.SDK_INT>=23) {
+					alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next.getTime(), sender);
+				} else if (Build.VERSION.SDK_INT>=19) {
 					alarmManager.setExact(AlarmManager.RTC_WAKEUP, next.getTime(), sender);
 				} else {
 					alarmManager.set(AlarmManager.RTC_WAKEUP, next.getTime(), sender);

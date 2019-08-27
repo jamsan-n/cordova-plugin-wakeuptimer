@@ -35,7 +35,8 @@ public class WakeupPlugin extends CordovaPlugin {
 	protected static final int ID_ONETIME_OFFSET = 10000;
 	protected static final int ID_SNOOZE_OFFSET = 10001;
 	protected static final int ID_REPEAT_OFFSET = 10011;
-	
+	protected static final int ID_REPEATSECOND_OFFSET = 10100;
+
 	public static  Map<String , Integer> daysOfWeek = new HashMap<String , Integer>() {
 		private static final long serialVersionUID = 1L;
 		{
@@ -50,6 +51,8 @@ public class WakeupPlugin extends CordovaPlugin {
 	};
 
 	public static CallbackContext connectionCallbackContext;
+	public static int lastRepeatingSeconds = 0;
+	public static JSONObject lastAlarm = null;
 
     @Override
     public void onReset() {
@@ -138,6 +141,8 @@ public class WakeupPlugin extends CordovaPlugin {
 
 		for(int i=0;i<alarms.length();i++){
 			JSONObject alarm=alarms.getJSONObject(i);
+
+			WakeupPlugin.lastAlarm = alarm;
 			
 			String type = "onetime";
 			if (alarm.has("type")){
@@ -205,6 +210,18 @@ public class WakeupPlugin extends CordovaPlugin {
 				}
 
 				setNotification(context, type, alarmDate, intent, ID_REPEAT_OFFSET);
+			} else if ( type.equals("repeatingSeconds")) {
+				WakeupPlugin.lastRepeatingSeconds = time.getInt("seconds");
+				Calendar alarmDate=getTimeFromNow(time);
+				Intent intent = new Intent(context, WakeupReceiver.class);
+				if(alarm.has("extra")){
+					intent.putExtra("extra", alarm.getJSONObject("extra").toString());
+					intent.putExtra("type", type);
+					intent.putExtra("skipOnAwake", alarm.getBoolean("skipOnAwake"));
+					intent.putExtra("skipOnRunning", alarm.getBoolean("skipOnRunning"));
+					intent.putExtra("startInBackground", alarm.getBoolean("startInBackground"));
+				}
+				setNotification(context, type, alarmDate, intent, ID_REPEATSECOND_OFFSET);
 			}
 		}
 	}
@@ -217,19 +234,23 @@ public class WakeupPlugin extends CordovaPlugin {
 			AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
 			if (type.equals("repeating")) {
-				Log.d(LOG_TAG, "setting alarm every " + alarmDate.get(Calendar.MINUTE) + " minutes; id " + id);
 
 				TimeZone defaultTimeZone = TimeZone.getDefault();
 				Calendar now = new GregorianCalendar(defaultTimeZone);
-				now.set(Calendar.MINUTE, now.get(Calendar.MINUTE) + alarmDate.get(Calendar.MINUTE));
+				long intervalMillis;
 
-				long intervalMillis = TimeUnit.MINUTES.toMillis(alarmDate.get(Calendar.MINUTE));
-				alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), intervalMillis, sender);
+				Log.d(LOG_TAG, "setting alarm every " + alarmDate.get(Calendar.MINUTE) + " minutes; id " + id);
+				now.set(Calendar.MINUTE, now.get(Calendar.MINUTE) + alarmDate.get(Calendar.MINUTE));
+				intervalMillis = TimeUnit.MINUTES.toMillis(alarmDate.get(Calendar.MINUTE));
+				alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), intervalMillis, sender);
 			} else {
 				SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				Log.d(LOG_TAG,"setting alarm at " + sdf.format(alarmDate.getTime()) + "; id " + id);
 
-				if (Build.VERSION.SDK_INT>=19) {
+
+				if (Build.VERSION.SDK_INT>=23) {
+					alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmDate.getTimeInMillis(), sender);
+				} else if (Build.VERSION.SDK_INT>=19) {
 					alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmDate.getTimeInMillis(), sender);
 				} else {
 					alarmManager.set(AlarmManager.RTC_WAKEUP, alarmDate.getTimeInMillis(), sender);
@@ -284,6 +305,8 @@ public class WakeupPlugin extends CordovaPlugin {
 
 		if (time.has("minutes")) {
 			calendar.set(Calendar.MINUTE, time.getInt("minutes"));
+		}else if(time.has("seconds")) {
+			calendar.set(Calendar.SECOND, time.getInt("seconds"));
 		} else {
 			calendar = null;
 		}
@@ -375,7 +398,21 @@ public class WakeupPlugin extends CordovaPlugin {
 
 		return calendar;
 	}
-	
+
+	static Calendar getTimeFromNow(int seconds){
+		TimeZone defaultz = TimeZone.getDefault();
+		Calendar calendar = new GregorianCalendar(defaultz);
+		calendar.setTime(new Date());
+
+		if(seconds>=0){
+			calendar.add(Calendar.SECOND, seconds);
+		}else{
+			calendar=null;
+		}
+
+		return calendar;
+	}
+
 	protected static void saveToPrefs(Context context, JSONArray alarms) {
 		SharedPreferences prefs;
 		SharedPreferences.Editor editor;
